@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans	PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="logic1" class="com.jc.aop.Logic1"></bean>
+	<bean id="logic2" class="com.jc.aop.Logic2"></bean>
+	
+	<!-- 设定为自动代理 -->
+<!-- 	<bean id="autoProxyCreator" class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"> -->
+<!-- 	</bean> -->
+	
+	<!-- 负责记录异常发生的信息 -->
+	<bean id="exceptionHandler" class="com.jc.aop.ExceptionHandler"></bean>
+	
+	<bean id="exceptionHandlerAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+		<property name="advice">
+			<ref bean="exceptionHandler"/>
+		</property>
+		<!-- 对指定类的任何方法都有效 -->
+		<property name="patterns">
+			<value>.*.*</value>
+		</property>
+	</bean>
+	
+	<!-- 负责记录方法的时间 -->
+	<bean id="timeHandler" class="com.jc.aop.TimeHandler"></bean>
+	<bean id="timeHandlerAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+		<property name="advice">
+			<ref bean="timeHandler"/>
+		</property>
+		<!-- 对指定类的任何方法有效 -->
+		<property name="patterns">
+			<value>.*.*</value>
+		</property>
+	</bean>
+	
+	<bean id="logic1Proxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyInterfaces">
+			<value>com.jc.aop.LogicInterface</value>
+		</property>
+		<property name="target">
+			<ref bean="logic1"/>
+		</property>
+		<!-- 指定代理类 -->
+		<property name="interceptorNames">
+			<list>
+				<value>timeHandlerAdvisor</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="logic2Proxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="proxyTargetClass">
+			<value>true</value>
+		</property>
+		<property name="target">
+			<ref bean="logic2"/>
+		</property>
+		<!-- 指定代理类 -->
+		<property name="interceptorNames">
+			<list>
+				<value>exceptionHandlerAdvisor</value>
+			</list>
+		</property>
+	</bean>
+	
+</beans>
